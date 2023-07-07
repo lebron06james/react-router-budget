@@ -28,6 +28,9 @@ export function dashboardLoader() {
 export async function dashboardAction({ request }) {
   await waait();
 
+    // get api url env
+  const apiUrl = await import.meta.env.VITE_API_URL;
+
   const data = await request.formData();
   const { _action, ...values } = Object.fromEntries(data);
 
@@ -40,7 +43,7 @@ export async function dashboardAction({ request }) {
   if (_action === "newUser") {
     try {
 
-      const response = await fetch('https://recipe-auth.cyclic.app/api/user/login', {
+      const response = await fetch(`${apiUrl}/api/user/login`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(postvalue)

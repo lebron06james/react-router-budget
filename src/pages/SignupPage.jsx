@@ -30,6 +30,9 @@ export function signupLoader() {
 export async function signupAction({ request }) {
   await waait();
 
+  // get api url env
+  const apiUrl = await import.meta.env.VITE_API_URL;
+
   const data = await request.formData();
   const { _action, ...values } = Object.fromEntries(data);
 
@@ -54,7 +57,7 @@ export async function signupAction({ request }) {
   // new user submission
   if (_action === "signUp") {
     try {
-      const response = await fetch("https://recipe-auth.cyclic.app/api/user/signup", {
+      const response = await fetch(`${apiUrl}/api/user/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(postvalue),
