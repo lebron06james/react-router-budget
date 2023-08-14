@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 
 // library imports
+import PocketBase from 'pocketbase';
 import { HomeIcon, ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
 
 // custom hooks
@@ -51,19 +52,34 @@ export async function commentLoader({ params }) {
 
   // });
 
-  const userName = await fetchData("userName");
+  // const userName = await fetchData("userName");
+  // const user = await fetchData("user");
 
-  const user = await fetchData("user");
+  const pb = new PocketBase(import.meta.env.VITE_PB_URI);
 
-  const { usertype } = user;
+  // const userName = pb.authStore.isValid
+  //   ? await pb.collection("users").getOne(pb.authStore.model.id, {
+  //       fields: "username",
+  //     })
+  //   : undefined;
+
+  const isValid = pb.authStore.isValid;
+
+  const user = isValid
+  ? await pb.collection("users").getOne(pb.authStore.model.id)
+  : undefined;
+
+  const userName = user.username;
+
+  const usertype = user.usertype;
 
   const userprompt = '(' + usertype + ') ' + userName;
 
-  return { event, userName, userprompt, _comments };
+  return { event, userName, userprompt, _comments, isValid };
 }
 
 function CommentPage() {
-  const { event, userName, userprompt, _comments } = useLoaderData();
+  const { event, userName, userprompt, _comments, isValid } = useLoaderData();
   const navigate = useNavigate();
 
   // const [tasks, setTasks] = useLocalStorage('react-todo.tasks', []);
@@ -109,7 +125,7 @@ function CommentPage() {
 
   return (
     <>
-      {userName ? (
+      {isValid ? (
         <div className="container">
           <div className="flex-md">
             <button className="btn btn--dark" onClick={() => navigate(-1)}>

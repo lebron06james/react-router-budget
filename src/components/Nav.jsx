@@ -15,7 +15,7 @@ const Nav = ({ userName }) => {
         <img src={logomark} alt="" height={30} />
         <span>Home</span>
       </NavLink>
-      {userName === "LeBron" && (
+      {userName === "lebron" && (
         <NavLink to="/signup" aria-label="Sign Up">
           <img src={signup} alt="" height={30} />
           <span>Sign Up</span>

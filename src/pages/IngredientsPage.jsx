@@ -2,6 +2,7 @@
 import { useLoaderData } from "react-router-dom";
 
 // library import
+import PocketBase from "pocketbase";
 import { toast } from "react-toastify";
 
 // component imports
@@ -15,9 +16,23 @@ import Intro from "../components/Intro";
 
 // loader
 export async function ingredientsLoader() {
-  const userName = await fetchData("userName");
+  // const userName = await fetchData("userName");
+
+  // user
+  const pb = new PocketBase(import.meta.env.VITE_PB_URI);
+
+  const isValid = pb.authStore.isValid;
+
+  const user = isValid
+    ? await pb.collection("users").getOne(pb.authStore.model.id)
+    : "";
+
+  const userName = user.username;
+
+  const usertype = user.usertype;
+
   const ingredients = await fetchData("ingredients");
-  return { userName, ingredients };
+  return { userName, ingredients, isValid };
 }
 
 // action
@@ -39,11 +54,11 @@ export async function ingredientsAction({ request }) {
 }
 
 const IngredientsPage = () => {
-  const { userName, ingredients } = useLoaderData();
+  const { userName, ingredients, isValid } = useLoaderData();
 
   return (
     <>
-      {userName ? (
+      {isValid ? (
         <div className="grid-lg">
           <h1>All Ingredients</h1>
           {ingredients && ingredients.length > 0 ? (

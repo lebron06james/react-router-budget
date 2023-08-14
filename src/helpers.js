@@ -35,9 +35,10 @@ export const deleteItem = ({ key, id }) => {
 };
 
 // create event
-export const createEvent = ({ name, pax, eventdate, eventtime, venue, holdingroom, updatedby }) => {
+export const createEvent = ({ eventid, name, pax, eventdate, eventtime, venue, holdingroom, updatedby }) => {
   const newItem = {
     id: crypto.randomUUID(),
+    eventid: eventid,
     name: name,
     createdAt: Date.now(),
     pax: +pax,

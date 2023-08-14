@@ -1,6 +1,9 @@
 // rrd imports
 import { Outlet, useLoaderData } from "react-router-dom";
 
+// library imports
+import PocketBase from "pocketbase";
+
 // assets
 import wave from "../assets/wave.svg";
 
@@ -8,16 +11,25 @@ import wave from "../assets/wave.svg";
 import Nav from "../components/Nav";
 
 //  helper functions
-import { fetchData } from "../helpers"
+import { fetchData } from "../helpers";
 
 // loader
-export function mainLoader() {
-  const userName = fetchData("userName");
-  return { userName }
+export async function mainLoader() {
+  // const userName = fetchData("userName");
+
+  const pb = new PocketBase(import.meta.env.VITE_PB_URI);
+
+  const userName = pb.authStore.isValid
+    ? await pb.collection("users").getOne(pb.authStore.model.id, {
+        fields: "username",
+      })
+    : undefined;
+
+  return { userName };
 }
 
 const Main = () => {
-  const { userName } = useLoaderData()
+  const { userName } = useLoaderData();
 
   return (
     <div className="layout">
@@ -27,6 +39,6 @@ const Main = () => {
       </main>
       <img src={wave} alt="" />
     </div>
-  )
-}
-export default Main
+  );
+};
+export default Main;

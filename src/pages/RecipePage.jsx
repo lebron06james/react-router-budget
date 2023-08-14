@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 
 // library imports
+import PocketBase from "pocketbase";
 import { toast } from "react-toastify";
 import { HomeIcon, ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
 
@@ -54,9 +55,22 @@ export async function recipeLoader({ params }) {
     throw new Error("The recipe you’re trying to find doesn’t exist");
   }
 
-  const userName = await fetchData("userName");
+  // const userName = await fetchData("userName");
+  
+  // user
+  const pb = new PocketBase(import.meta.env.VITE_PB_URI);
 
-  return { userName, recipe, event, ingredients };
+  const isValid = pb.authStore.isValid;
+
+  const user = isValid
+    ? await pb.collection("users").getOne(pb.authStore.model.id)
+    : "";
+
+  const userName = user.username;
+
+  const usertype = user.usertype;
+
+  return { userName, recipe, event, ingredients, isValid };
 }
 
 // action
@@ -91,12 +105,12 @@ export async function recipeAction({ request }) {
 }
 
 const RecipePage = () => {
-  const { userName, recipe, ingredients, event } = useLoaderData();
+  const { userName, recipe, ingredients, event, isValid } = useLoaderData();
   const navigate = useNavigate();
 
   return (
     <>
-      {userName ? (
+      {isValid ? (
         <div
           className="grid-lg"
           style={{

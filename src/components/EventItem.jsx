@@ -12,7 +12,7 @@ import {
 } from "../helpers";
 
 const EventItem = ({ event }) => {
-  const { id, name, pax, eventdate, eventtime, venue, holdingroom, updatedby, color } = event;
+  const { id, eventid, name, pax, eventdate, eventtime, venue, holdingroom, updatedby, color } = event;
 //   const spent = calculateSpentByRecipe(id);
   const spent = pax;
 
@@ -53,7 +53,7 @@ const EventItem = ({ event }) => {
 
 
       <div className="progress-text">
-        <small>id: { id }</small>
+        <small>id: { eventid }</small>
         <small>Updated by: { updatedby }</small>
       </div>
 
@@ -62,17 +62,17 @@ const EventItem = ({ event }) => {
       </div>
 
       <div className="progress-text">
-        <small><strong>Event Date: { eventdate }</strong></small>
+        <small><strong>Start Date/Time: { eventdate }</strong></small>
         <small><b>Venue: { venue }</b></small>
       </div>
 
       <div className="progress-text">
-        <small><strong>Event Time: { eventtime }</strong></small>
+        <small><strong>End Date/Time: { eventtime }</strong></small>
         <small><b>Holding Room: { holdingroom }</b></small>
       </div>
 
       <div className="flex-sm">
-        Recent comment: comment name here
+        Dietary restrictions: lorem ipsum ipsum lorem
         <Link to={`/event/${id}`} className="btn">
           <span>Create Menu</span>
           <BanknotesIcon width={20} />

@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 
 // library imports
+import PocketBase from "pocketbase";
 import { toast } from "react-toastify";
 import { HomeIcon, ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
 
@@ -20,10 +21,24 @@ import { createEvent, deleteItem, fetchData, waait } from "../helpers";
 import SignupForm from "../components/SignupForm";
 
 // loader
-export function signupLoader() {
-  const userName = fetchData("userName");
+export async function signupLoader() {
+  // const userName = fetchData("userName");
+
+  // user
+  const pb = new PocketBase(import.meta.env.VITE_PB_URI);
+
+  const isValid = pb.authStore.isValid;
+
+  const user = isValid
+    ? await pb.collection("users").getOne(pb.authStore.model.id)
+    : "";
+
+  const userName = user.username;
+
+  const usertype = user.usertype;
+
   const events = fetchData("events");
-  return { userName, events };
+  return { userName, events, isValid };
 }
 
 // action
@@ -41,7 +56,7 @@ export async function signupAction({ request }) {
   const username = values.username;
   const usertype = values.newUserType;
 
-  if (username === 'LeBron') {
+  if (username === "lebron") {
     return toast.error(
       `Sorry, that is a reserved first name or nickname. You are not allowed to use it. Please use a different name.`
     );
@@ -80,13 +95,13 @@ export async function signupAction({ request }) {
 }
 
 const SignupPage = () => {
-  const { userName, events } = useLoaderData();
+  const { userName, events, isValid } = useLoaderData();
   const navigate = useNavigate();
 
   return (
     <>
-      {userName ? (
-        userName === "LeBron" ? (
+      {isValid ? (
+        userName === "lebron" ? (
           <SignupForm />
         ) : (
           <div className="dashboard">

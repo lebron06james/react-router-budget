@@ -1,7 +1,10 @@
+import { useState, useEffect } from "react";
+
 // rrd imports
 import { Link, useLoaderData } from "react-router-dom";
 
 // library imports
+import PocketBase from "pocketbase";
 import { toast } from "react-toastify";
 
 // components
@@ -10,61 +13,95 @@ import AddEventForm from "../components/AddEventForm";
 import EventItem from "../components/EventItem";
 
 //  helper functions
-import {
-  createEvent,
-  deleteItem,
-  fetchData,
-  waait,
-} from "../helpers";
+import { createEvent, deleteItem, fetchData, waait } from "../helpers";
 
 // loader
-export function dashboardLoader() {
-  const userName = fetchData("userName");
+export async function dashboardLoader() {
+  // const userName = fetchData("userName");
+  // const events = fetchData("events");
+
+  // pb start
+
+  // user
+  const pb = new PocketBase(import.meta.env.VITE_PB_URI);
+
+  const isValid = pb.authStore.isValid;
+
+  const user = isValid
+    ? await pb.collection("users").getOne(pb.authStore.model.id)
+    : "";
+
+  const userName = user.username;
+
+  const usertype = user.usertype;
+
+  const userprompt = "(" + usertype + ") " + userName;
+
+  // events
+  // const events = await pb.collection("events").getFullList({
+  //   sort: "-created",
+  // });
   const events = fetchData("events");
-  return { userName, events };
+  // pb end
+
+  return { userName, events, isValid };
 }
 
 // action
 export async function dashboardAction({ request }) {
   await waait();
 
-    // get api url env
+  // get api url env
   const apiUrl = await import.meta.env.VITE_API_URL;
 
   const data = await request.formData();
   const { _action, ...values } = Object.fromEntries(data);
 
-  const email =  values.email;
+  const email = values.email;
   const password = values.password;
 
-  const postvalue = {"email": email, "password": password};
+  const postvalue = { email: email, password: password };
 
   // new user submission
   if (_action === "newUser") {
     try {
+      // old mongo
+      // const response = await fetch(`${apiUrl}/api/user/login`, {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify(postvalue),
+      // });
 
-      const response = await fetch(`${apiUrl}/api/user/login`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(postvalue)
-      });
+      // const json = await response.json();
 
-      const json = await response.json();
-  
-      if (!response.ok) {
-        return toast.error(`Oops, that didn't go right. Error message: ${json.error}`);
+      // if (!response.ok) {
+      //   return toast.error(
+      //     `Oops, that didn't go right. Error message: ${json.error}`
+      //   );
+      // }
+      // if (response.ok) {
+      //   localStorage.setItem("user", JSON.stringify(json));
+      //   localStorage.setItem("userName", JSON.stringify(json.username));
+
+      //   return toast.success(`Welcome, ${json.username}`);
+
+      // new pb
+      const pb = new PocketBase(import.meta.env.VITE_PB_URI);
+
+      const authData = await pb
+        .collection("users")
+        .authWithPassword(email, password);
+
+      if (!pb.authStore.isValid) {
+        return toast.error(
+          `Oops, that didn't go right. Error message: ${authData.data.message}`
+        );
       }
-      if (response.ok) {
-
-        localStorage.setItem('user', JSON.stringify(json));
-        localStorage.setItem("userName", JSON.stringify(json.username));
-
-        return toast.success(`Welcome, ${json.username}`);
-  
+      if (pb.authStore.isValid) {
+        return toast.success(`Welcome, ${authData.record.username}`);
       }
-
     } catch (e) {
-      throw new Error("There was a problem creating your account.");
+      throw new Error("There was a problem creating your account.", e);
     }
   }
 
@@ -84,21 +121,68 @@ export async function dashboardAction({ request }) {
       throw new Error("There was a problem creating your event.");
     }
   }
-
 }
 
 const Dashboard = () => {
-  const { userName, events } = useLoaderData();
+  const { userName, events, isValid } = useLoaderData();
+
+  const [ebents, setEbents] = useState(events || []);
+
+  const pb = new PocketBase(import.meta.env.VITE_PB_URI);
+
+  // Subscribe to changes in any events record
+  pb.collection("events").subscribe("*", function (e) {
+    console.log(e.action);
+    console.log(e.record);
+    const obj = e.record;
+
+    if (e.action === "create") {
+      try {
+
+        // remove this save to db on actual
+        // because it is already in the db
+        // save to db...
+        createEvent({
+          eventid: obj.eventid,
+          name: obj.name,
+          pax: obj.expectednoofguest,
+          eventdate: obj.starttime,
+          eventtime: obj.endtime,
+          venue: obj.location,
+          holdingroom: obj.holdingroom,
+          updatedby: obj.updatedby,
+        });
+
+        // then update ebents state here
+        setEbents((previousState) => [
+          ...previousState,
+          {
+            eventid: obj.eventid,
+            name: obj.name,
+            pax: obj.expectednoofguest,
+            eventdate: obj.starttime,
+            eventtime: obj.endtime,
+            venue: obj.location,
+            holdingroom: obj.holdingroom,
+            updatedby: obj.updatedby,
+          },
+        ]);
+        // return toast.success("Event created!");
+      } catch (e) {
+        throw new Error("There was a problem creating your event.");
+      }
+    }
+  });
 
   return (
     <>
-      {userName ? (
+      {isValid ? (
         <div className="dashboard">
           <h1>
             Welcome back, <span className="accent">{userName}</span>
           </h1>
           <div className="grid-sm">
-            {events && events.length > 0 ? (
+            {ebents && ebents.length > 0 ? (
               <div className="grid-lg">
                 <div className="flex-lg">
                   <AddEventForm userName={userName} />
@@ -106,11 +190,10 @@ const Dashboard = () => {
                 </div>
                 <h2>Existing Events</h2>
                 <div className="recipes">
-                  {events.map((event) => (
+                  {ebents.map((event) => (
                     <EventItem key={event.id} event={event} />
                   ))}
                 </div>
-
               </div>
             ) : (
               <div className="grid-sm">

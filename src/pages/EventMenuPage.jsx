@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 
 // library imports
+import PocketBase from 'pocketbase';
 import { toast } from "react-toastify";
 import {
   BanknotesIcon,
@@ -60,11 +61,25 @@ export async function eventMenuLoader({ params }) {
     ingredients = [...ingredients, ..._ingredients];
   });
 
-  const userName = fetchData("userName");
+  // const userName = fetchData("userName");
+
+  // user
+  const pb = new PocketBase(import.meta.env.VITE_PB_URI);
+
+  const isValid = pb.authStore.isValid;
+
+  const user = isValid
+    ? await pb.collection("users").getOne(pb.authStore.model.id)
+    : "";
+
+  const userName = user.username;
+
+  const usertype = user.usertype;
+
   // const recipes = fetchData("recipes");
   // const ingredients = fetchData("ingredients");
 
-  return { event, userName, recipes, ingredients };
+  return { event, userName, recipes, ingredients, isValid };
 }
 
 // action
@@ -124,12 +139,12 @@ export async function eventMenuAction({ request }) {
 }
 
 const EventMenuPage = () => {
-  const { event, userName, recipes, ingredients } = useLoaderData();
+  const { event, userName, recipes, ingredients, isValid } = useLoaderData();
   const navigate = useNavigate();
 
   return (
     <>
-      {userName ? (
+      {isValid ? (
         <div className="dashboard">
           <div className="flex-md">
             <button className="btn btn--dark" onClick={() => navigate(-1)}>
