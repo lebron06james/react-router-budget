@@ -14,6 +14,7 @@
     "pocketbase": "^0.16.0",
     "react": "^18.2.0",
     "react-date-picker": "^10.2.0",
+    "react-datetime-picker": "^5.5.1",
     "react-dom": "^18.2.0",
     "react-router-dom": "6.8",
     "react-time-picker": "^6.2.0",

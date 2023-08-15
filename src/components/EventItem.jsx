@@ -9,10 +9,11 @@ import {
 //   calculateSpentByRecipe,
   formatCurrency,
   formatPercentage,
+  utcToLocaleTime,
 } from "../helpers";
 
 const EventItem = ({ event }) => {
-  const { id, eventid, name, pax, eventdate, eventtime, venue, holdingroom, updatedby, color } = event;
+  const { id, eventid, name, pax, startdatetime, enddatetime, venue, holdingroom, updatedby, color } = event;
 //   const spent = calculateSpentByRecipe(id);
   const spent = pax;
 
@@ -43,12 +44,12 @@ const EventItem = ({ event }) => {
       </div> */}
 
       {/* <div className="progress-text">
-        <small>Event Date: { eventdate }</small>
+        <small>Event Date: { startdatetime }</small>
         <small>Updated by: { updatedby }</small>
       </div>
 
       <div className="progress-text">
-        <small>Event Time: { eventtime }</small>
+        <small>Event Time: { enddatetime }</small>
       </div> */}
 
 
@@ -62,12 +63,12 @@ const EventItem = ({ event }) => {
       </div>
 
       <div className="progress-text">
-        <small><strong>Start Date/Time: { eventdate }</strong></small>
+        <small><strong>Start Date/Time: { utcToLocaleTime(startdatetime) }</strong></small>
         <small><b>Venue: { venue }</b></small>
       </div>
 
       <div className="progress-text">
-        <small><strong>End Date/Time: { eventtime }</strong></small>
+        <small><strong>End Date/Time: { utcToLocaleTime(enddatetime) }</strong></small>
         <small><b>Holding Room: { holdingroom }</b></small>
       </div>
 

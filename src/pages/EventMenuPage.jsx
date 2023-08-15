@@ -160,8 +160,8 @@ const EventMenuPage = () => {
           </h1>
           <div className="grid-sm">
             <p>
-              This event starts on <strong>{event.eventdate}</strong> at{" "}
-              <strong>{event.eventtime}</strong>.
+              This event starts on <strong>{event.startdatetime}</strong> at{" "}
+              <strong>{event.enddatetime}</strong>.
             </p>
             <p>
               Holding room is <strong>{event.holdingroom}</strong>.

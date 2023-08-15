@@ -134,8 +134,8 @@ const RecipePage = () => {
           </h1>
           <div className="grid-sm">
             <p>
-              Event starts on <strong>{event.eventdate}</strong> at{" "}
-              <strong>{event.eventtime}</strong>
+              Event starts on <strong>{event.startdatetime}</strong> at{" "}
+              <strong>{event.enddatetime}</strong>
             </p>
             <p>
               Holding room - <strong>{event.holdingroom}</strong>

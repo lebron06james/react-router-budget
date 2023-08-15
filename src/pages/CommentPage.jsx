@@ -143,8 +143,8 @@ function CommentPage() {
               {event.name}, {event.pax} Pax
             </h1>
             <h3>
-              Event starts on <strong>{event.eventdate}</strong> at{" "}
-              <strong>{event.eventtime}</strong>
+              Event starts on <strong>{event.startdatetime}</strong> at{" "}
+              <strong>{event.enddatetime}</strong>
             </h3>
             <h3>
               Holding room - <strong>{event.holdingroom}</strong>

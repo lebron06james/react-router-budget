@@ -1,6 +1,23 @@
 export const waait = () =>
   new Promise((res) => setTimeout(res, Math.random() * 800));
 
+// utc to locale time
+export const utcToLocaleTime = (utcDate) => {
+  // 👇️ Example date and time in UTC
+  // const utcDate = '2022-01-15T11:02:17Z';
+
+  const date = new Date(utcDate);
+
+  // 👇️ "Sat Jan 15 2022 13:02:17 GMT+0200 (Eastern European Standard Time)"
+  // console.log(date);
+
+  // ✅ Convert to Local time
+  // console.log(date.toLocaleString()); // 👉️ "1/15/2022, 1:02:17 PM"
+  const localeDate = date.toLocaleString();
+
+  return localeDate;
+};
+
 // colors
 const generateRandomColor = () => {
   const existingRecipeLength = fetchData("recipes")?.length ?? 0;
@@ -35,19 +52,35 @@ export const deleteItem = ({ key, id }) => {
 };
 
 // create event
-export const createEvent = ({ eventid, name, pax, eventdate, eventtime, venue, holdingroom, updatedby }) => {
+export const createEvent = ({
+  eventid,
+  name,
+  attire,
+  description,
+  startdatetime,
+  enddatetime,
+  venue,
+  holdingroom,
+  dietaryrestrictions,
+  updatedby,
+  entrancegate,
+}) => {
   const newItem = {
     id: crypto.randomUUID(),
     eventid: eventid,
     name: name,
-    createdAt: Date.now(),
+    attire: attire,
+    description: description,
     pax: +pax,
-    eventdate: eventdate,
-    eventtime: eventtime,
+    startdatetime: startdatetime,
+    enddatetime: enddatetime,
     venue: venue,
     holdingroom: holdingroom,
+    dietaryrestrictions: dietaryrestrictions,
+    entrancegate: entrancegate,
     updatedby: updatedby,
     color: generateRandomEventColor(),
+    createdAt: Date.now(),
   };
   const existingEvents = fetchData("events") ?? [];
   return localStorage.setItem(
