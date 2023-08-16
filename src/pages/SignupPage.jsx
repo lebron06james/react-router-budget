@@ -43,7 +43,7 @@ export async function signupLoader() {
 
 // action
 export async function signupAction({ request }) {
-  await waait();
+  // await waait();
 
   // get api url env
   const apiUrl = await import.meta.env.VITE_API_URL;

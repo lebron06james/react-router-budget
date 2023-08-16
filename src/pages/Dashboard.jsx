@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 // rrd imports
-import { Link, useLoaderData, useNavigate, redirect, } from "react-router-dom";
+import { Link, useLoaderData, useNavigate, redirect } from "react-router-dom";
 
 // library imports
 import PocketBase from "pocketbase";
@@ -51,9 +51,16 @@ export async function dashboardLoader() {
   const userprompt = "(" + usertype + ") " + userName;
 
   // events
-  const events = await pb.collection("events").getFullList({
+  // const events = await pb.collection("events").getFullList({
+  //   sort: "-created",
+  // });
+
+  const records = await pb.collection("events").getList(1, 50, {
+    filter: 'created >= "2023-01-01 00:00:00"',
     sort: "-created",
   });
+
+  const events = records.totalItems === 0 ? [] : records.items;
 
   // const events = fetchData("events");
   // pb end
@@ -63,7 +70,7 @@ export async function dashboardLoader() {
 
 // action
 export async function dashboardAction({ request }) {
-  await waait();
+  // await waait();
 
   // get api url env
   const apiUrl = await import.meta.env.VITE_API_URL;
@@ -210,34 +217,29 @@ const Dashboard = () => {
 
     if (e.action === "create") {
       // if (obj.updatedby === "Bron") {
-        try {
-          // remove this save to db on actual
-          // because it is already in the db
-          // save to db...
-          // createEvent({
-          //   eventid: obj.eventid,
-          //   name: obj.name,
-          //   pax: Math.random(),
-          //   startdatetime: obj.startdatetime,
-          //   enddatetime: obj.enddatetime,
-          //   venue: obj.location,
-          //   holdingroom: obj.holdingroom,
-          //   updatedby: obj.updatedby,
-          // });
+      try {
+        // remove this save to db on actual
+        // because it is already in the db
+        // save to db...
+        // createEvent({
+        //   eventid: obj.eventid,
+        //   name: obj.name,
+        //   pax: Math.random(),
+        //   startdatetime: obj.startdatetime,
+        //   enddatetime: obj.enddatetime,
+        //   venue: obj.location,
+        //   holdingroom: obj.holdingroom,
+        //   updatedby: obj.updatedby,
+        // });
 
-          // then update ebents state here
-          // setEbents((previousState) => [
-          //   ...previousState, obj,
-          // ]);
-          if (obj.updatedby === "Bron") {
-            toast.success(`Event ${obj.name} has been added!`);
-          }
-
-          return redirect("/");
-
-        } catch (e) {
-          throw new Error("There was a problem creating your event.");
-        }
+        // then update ebents state here
+        setEbents((previousState) => [...previousState, obj]);
+        // if (obj.updatedby === "Bron") {
+        toast.success(`Event ${obj.name} has been added!`);
+        // }
+      } catch (e) {
+        throw new Error("There was a problem creating your event.");
+      }
       // }
     }
   });
@@ -250,11 +252,11 @@ const Dashboard = () => {
             Welcome back, <span className="accent">{userName}</span>
           </h1>
           <div className="grid-sm">
-            {events && events.length > 0 ? (
+            {ebents && ebents.length > 0 ? (
               <div className="grid-lg">
                 <h2>Existing Events</h2>
                 <div className="recipes">
-                  {events.map((event) => (
+                  {ebents.map((event) => (
                     <EventItem key={event.id} event={event} />
                   ))}
                 </div>

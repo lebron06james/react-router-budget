@@ -37,11 +37,16 @@ import {
 
 // loader
 export async function eventMenuLoader({ params }) {
-  const event = await getAllMatchingItems({
-    category: "events",
-    key: "id",
-    value: params.id,
-  })[0];
+
+  const pb = new PocketBase(import.meta.env.VITE_PB_URI);
+  
+  // const event = await getAllMatchingItems({
+  //   category: "events",
+  //   key: "id",
+  //   value: params.id,
+  // })[0];
+
+  const event = await pb.collection('events').getOne(params.id);
 
   const recipes = await getAllMatchingItems({
     category: "recipes",
@@ -64,7 +69,6 @@ export async function eventMenuLoader({ params }) {
   // const userName = fetchData("userName");
 
   // user
-  const pb = new PocketBase(import.meta.env.VITE_PB_URI);
 
   const isValid = pb.authStore.isValid;
 
@@ -84,7 +88,7 @@ export async function eventMenuLoader({ params }) {
 
 // action
 export async function eventMenuAction({ request }) {
-  await waait();
+  // await waait();
 
   const data = await request.formData();
   const { _action, ...values } = Object.fromEntries(data);

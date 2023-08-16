@@ -2,17 +2,22 @@
 import { redirect } from "react-router-dom";
 
 // library
+import PocketBase from 'pocketbase';
 import { toast } from "react-toastify";
 
 // helpers
 import { deleteItem, getAllMatchingItems } from "../helpers";
 
-export function deleteEvent({ params }) {
+export async function deleteEvent({ params }) {
   try {
-    deleteItem({
-      key: "events",
-      id: params.id,
-    });
+    // deleteItem({
+    //   key: "events",
+    //   id: params.id,
+    // });
+
+    const pb = new PocketBase(import.meta.env.VITE_PB_URI);
+
+    await pb.collection('events').delete(params.id);
 
     const associatedRecipes = getAllMatchingItems({
       category: "recipes",
